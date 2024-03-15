@@ -10,6 +10,12 @@ class User(models.Model):
     email = models.EmailField(max_length=120)
 
 
+def __str__(self):
+        return f'{self.username} {self.password} {self.phone_Number} {self.email}'
+
+# def __str__(self):
+#         return f'{self.username} {self.password} {self.phone_Number} {self.email}'
+
 
 
     

@@ -2,7 +2,7 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from .models import *
-
+import json
 # Create your views here.
 def my_view(request):
     # Access the CSRF token from the request object
@@ -71,19 +71,69 @@ def Login_View(request, response):
 #         except Exception as e:
 #             return JsonResponse({'error': str(e)}, status=500)
     
+def create_user(username, email, phone_Number, password):
+    try:
+        user = User.objects.create(
+            username=username,
+            email=email,
+            phone_Number=phone_Number,
+            password=password
+        )
+        return user
+    except Exception as e:
+        return None
+
+
 @csrf_exempt
+# def Register_View(request):
+#     if request.method == 'POST':
+#         # Retrieve data from the request
+#         username = request.POST.get('username')
+#         email = request.POST.get('email')
+#         phone_Number = request.POST.get('phone_Number')
+#         password = request.POST.get('password')
+
+#         try:
+#             # Check if username, email, phone number, and password are provided
+#             if not (username and email and phone_Number and password):
+#                 return JsonResponse({'error': 'All fields are required'}, status=400)
+
+#             # Check if a user with the provided email already exists
+#             if User.objects.filter(email=email).exists():
+#                 return JsonResponse({'error': 'User with this email already exists'}, status=400)
+
+#             # Check if a user with the provided username already exists
+#             if User.objects.filter(username=username).exists():
+#                 return JsonResponse({'error': 'User with this username already exists'}, status=400)
+
+#             # Create a new user instance using the create_user function
+#             # new_user = create_user(username, email, phone_Number, password)
+#             new_user = create_user(username=username, email=email, phone_Number=phone_Number, password=password)
+
+#             if new_user:
+#                 return JsonResponse({'message': 'User registered successfully'})
+#             else:
+#                 return JsonResponse({'error': 'Failed to register user'}, status=500)
+#         except Exception as e:
+#             return JsonResponse({'error': str(e)}, status=500)
+
 def Register_View(request):
     if request.method == 'POST':
-        # Retrieve data from the request
-        username = request.POST.get('username')
-        email = request.POST.get('email')  # Make sure 'email' is included in the request data
-        phone_Number = request.POST.get('phone_Number')
-        password = request.POST.get('password')
-
         try:
+            # Parse JSON data from the request body
+            data = json.loads(request.body)
+
+            # Extract data from the request
+            username = data.get('username')
+            email = data.get('email')
+            phone_Number = data.get('phone_Number')
+            password = data.get('password')
+
+            print("Received data:", data)
+
             # Check if username, email, phone number, and password are provided
-            # if not (username and email and phone_Number and password):
-            #     return JsonResponse({'error': 'All fields are required'}, status=400)
+            if not (username and email and phone_Number and password):
+                return JsonResponse({'error': 'All fields are required'}, status=400)
 
             # Check if a user with the provided email already exists
             if User.objects.filter(email=email).exists():
@@ -94,9 +144,13 @@ def Register_View(request):
                 return JsonResponse({'error': 'User with this username already exists'}, status=400)
 
             # Create a new user instance
-            user = User.objects.create_user(username=username, email=email, phone_Number=phone_Number)
-            user.set_password(password)
+            user = User.objects.create(username=username, email=email, phone_Number=phone_Number, password=password)
+            
+            # Save the user object
             user.save()
+
             return JsonResponse({'message': 'User registered successfully'})
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)

@@ -84,17 +84,23 @@ WSGI_APPLICATION = 'storelox.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'djongo',
-        'NAME': 'storelox-ecommerce',  # Name of the database
-        'ENFORCE_SCHEMA': False,
-        'CLIENT': {
-            'host': 'localhost',  # MongoDB host
-            'port': 27017,  # MongoDB port
-            'username': 'your_username',  # MongoDB username (if required)
-            'password': 'your_password',  # MongoDB password (if required)
-            'authSource': 'admin',  # MongoDB authentication database (if required)
-            # Add any additional MongoDB connection options here
-        }
+        # 'ENGINE': 'djongo',
+        # 'NAME': 'storelox-ecommerce',  # Name of the database
+        # 'ENFORCE_SCHEMA': False,
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'storelox_db',
+        'USER': 'postgres',
+        'PASSWORD': 'spectrum',
+        'HOST': 'localhost',
+        'PORT': '5432',
+        # 'CLIENT': {
+        #     'host': 'localhost',  # MongoDB host
+        #     'port': 27017,  # MongoDB port
+        #     'username': 'your_username',  # MongoDB username (if required)
+        #     'password': 'your_password',  # MongoDB password (if required)
+        #     'authSource': 'admin',  # MongoDB authentication database (if required)
+        #     # Add any additional MongoDB connection options here
+        # }
     }
 }
 
