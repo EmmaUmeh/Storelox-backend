@@ -3,6 +3,9 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from .models import *
 import json
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+
 # Create your views here.
 def my_view(request):
     # Access the CSRF token from the request object
@@ -20,21 +23,24 @@ def home(request):
     
 
 @csrf_exempt
-def Login_View(request, response):
+def Login_View(request):
     try:
         if request.method == 'POST':
             email = request.POST.get('email')
             password = request.POST.get('password')
 
             # Authenticate user using email and password
-            try:
-                user = User.objects.get(email=email, password=password)
-            except User.DoesNotExist:
-                user = None
+            user = authenticate(email=email, password=password)
 
             if user is not None:
-                # User is authenticated, return success message
-                return JsonResponse({'message': 'Login successful'})
+                # User is authenticated, generate JWT tokens
+                refresh = RefreshToken.for_user(user)
+
+                return JsonResponse({
+                    'message': 'Login successful',
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token)
+                })
             else:
                 # Authentication failed, return error message
                 return JsonResponse({'error': 'Invalid email or password'}, status=400)
@@ -71,17 +77,17 @@ def Login_View(request, response):
 #         except Exception as e:
 #             return JsonResponse({'error': str(e)}, status=500)
     
-def create_user(username, email, phone_Number, password):
-    try:
-        user = User.objects.create(
-            username=username,
-            email=email,
-            phone_Number=phone_Number,
-            password=password
-        )
-        return user
-    except Exception as e:
-        return None
+# def create_user(username, email, phone_Number, password):
+#     try:
+#         user = User.objects.create(
+#             username=username,
+#             email=email,
+#             phone_Number=phone_Number,
+#             password=password
+#         )
+#         return user
+#     except Exception as e:
+#         return None
 
 
 @csrf_exempt
@@ -148,6 +154,14 @@ def Register_View(request):
             
             # Save the user object
             user.save()
+
+            refresh = RefreshToken.for_user(user)
+
+            return JsonResponse({
+                'message': 'User registered successfully',
+                'refresh': str(refresh),
+                'access': str(refresh.access_token)
+            })
 
             return JsonResponse({'message': 'User registered successfully'})
         except json.JSONDecodeError:

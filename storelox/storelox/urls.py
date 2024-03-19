@@ -17,14 +17,24 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from ecommerce.views import *
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
+from rest_framework_simplejwt.views import TokenVerifyView
 
 
 urlpatterns = [
     path('admin/', admin.site.urls),
      path('', home),
+      path('my-view', my_view, name='my-view'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Endpoint to obtain JWT token
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),  # Endpoint to refresh JWT token
+    path('auth/login', TokenObtainPairView.as_view(), name='token_obtain_pair'),  # Login endpoint (using JWT)
+    path('auth/register', Register_View, name='register'),  # Registration endpoint
     #    path('/my-view', my_view),
-          path('my-view', my_view, name='my-view'),
-    path('auth/login', Login_View),
-     path('auth/register', Register_View),
+    # path('my-view', my_view, name='my-view'),
+    # path('auth/login', TokenVerifyView(),  Login_View),
+    #  path('auth/register', Register_View),
 ]
